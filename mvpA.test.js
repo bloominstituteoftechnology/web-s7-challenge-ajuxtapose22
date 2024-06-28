@@ -13,6 +13,8 @@ cg-jest run -- mvpB.test.js --runInBand --forceExit
 4- Fixtures
 mvpA.test.js
 */
+
+
 import React from 'react'
 import App from './frontend/components/App'
 import { BrowserRouter as Router } from 'react-router-dom'
