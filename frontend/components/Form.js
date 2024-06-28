@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as Yup from 'yup';
 
 const validationErrors = {
-  fullNameTooShort: 'Full name must be at least 3 characters',
-  fullNameTooLong: 'Full name must be at most 20 characters',
-  sizeIncorrect: 'Size must be S, M, or L',
+  fullNameTooShort: 'full name must be at least 3 characters',
+  fullNameTooLong: 'full name must be at most 20 characters',
+  sizeIncorrect: 'size must be S or M or L',
 };
 
 const formSchema = Yup.object().shape({
@@ -16,13 +16,13 @@ const formSchema = Yup.object().shape({
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
     .required(),
-  toppings: Yup.array().of(Yup.number()).required(), // Expect an array of numbers
+  toppings: Yup.array().of(Yup.number()).required(),
 });
 
 const getInitialValues = () => ({
   fullName: '',
   size: '',
-  toppings: [], // Only store the array of topping IDs
+  toppings: [], 
 });
 
 const getInitialErrors = () => ({
@@ -43,6 +43,20 @@ export default function Form() {
   const [errors, setErrors] = useState(getInitialErrors());
   const [serverSuccess, setServerSuccess] = useState('');
   const [serverFailure, setServerFailure] = useState('');
+  const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    const validateForm = async () => {
+      try {
+        await formSchema.validate(values, { abortEarly: false });
+        setIsValid(true);
+      } catch (err) {
+        setIsValid(false);
+      }
+    };
+    validateForm();
+  }, [values]);
+
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
@@ -50,7 +64,7 @@ export default function Form() {
     const payload = {
       fullName: values.fullName,
       size: values.size,
-      toppings: values.toppings, // Send the array of topping IDs
+      toppings: values.toppings, 
     };
 
     try {
@@ -59,6 +73,7 @@ export default function Form() {
       const { message } = response.data;
       setServerSuccess(message);
       setServerFailure('');
+      setValues(getInitialValues());
     } catch (error) {
       if (error.inner) {
         const newErrors = error.inner.reduce((acc, err) => {
@@ -88,7 +103,7 @@ export default function Form() {
     } else {
       setValues((prevValues) => ({ ...prevValues, [name]: value }));
       
-      // Validate non-checkbox values
+    
       try {
         Yup.reach(formSchema, name).validate(value)
           .then(() => setErrors((prevErrors) => ({ ...prevErrors, [name]: '' })))
@@ -144,7 +159,7 @@ export default function Form() {
           </label>
         ))}
       </div>
-      <input type="submit" />
+      <input disabled={!isValid} type="submit" />
     </form>
   );
 }
