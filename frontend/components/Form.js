@@ -9,6 +9,8 @@ const validationErrors = {
 
 // 👇 Here you will create your schema.
 
+
+
 // 👇 This array could help you construct your checkboxes using .map in the JSX.
 const toppings = [
   { topping_id: '1', text: 'Pepperoni' },
@@ -19,43 +21,87 @@ const toppings = [
 ]
 
 export default function Form() {
+
+  const [formData, setFormData] = useState({
+    fullName: '',
+    size: '',
+    pepperoni: false,
+    greenPeppers: false,
+    pineapple: false,
+    mushrooms: false,
+    ham: false
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('form submitted')
+  }
+
+  const handleChange = (event) => {
+    const { name, type, value, checked } = event.target;
+
+    setFormData({
+      ...formData,
+      [name]: type == "checkbox" ? checked : value,
+    });
+console.log(value)
+  };
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <h2>Order Your Pizza</h2>
       {true && <div className='success'>Thank you for your order!</div>}
       {true && <div className='failure'>Something went wrong</div>}
 
+
+{/* ////////////// USERNAME SECTION ////////////// */}
       <div className="input-group">
         <div>
           <label htmlFor="fullName">Full Name</label><br />
-          <input placeholder="Type full name" id="fullName" type="text" />
+          <input onChange={handleChange} placeholder="Type full name" id="fullName" type="text" />
         </div>
         {true && <div className='error'>Bad value</div>}
       </div>
 
+
+{/* ////////////// PIZZA SIZE SECTION ////////////// */}
       <div className="input-group">
         <div>
           <label htmlFor="size">Size</label><br />
-          <select id="size">
+          <select 
+            name="size" 
+            onChange={handleChange} 
+            value={formData.size} 
+            id="size"
+            >
             <option value="">----Choose Size----</option>
-            {/* Fill out the missing options */}
+            <option value="S">Small</option>
+            <option value="M">Medium</option>
+            <option value="L">Large</option>
           </select>
         </div>
         {true && <div className='error'>Bad value</div>}
       </div>
 
+{/* ////////////// CHECKED BOXES SELECTIONS ////////////// */}
       <div className="input-group">
         {/* 👇 Maybe you could generate the checkboxes dynamically */}
-        <label key="1">
-          <input
-            name="Pepperoni"
-            type="checkbox"
-          />
-          Pepperoni<br />
-        </label>
+        {toppings.map((topping) => (
+              <label key={topping.topping_id}>
+                <input
+                  type="checkbox"
+                  name="toppings"
+                  value={topping.text}
+                  onChange={handleChange}
+                />
+                {topping.text}<br />
+              </label>
+            ))}
+
+     
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
-      <input type="submit" />
+      <input disabled={!false} type="submit" />
     </form>
   )
 }
