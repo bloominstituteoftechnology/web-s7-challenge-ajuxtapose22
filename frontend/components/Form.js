@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import * as Yup from "yup";
 
 // 👇 Here are the validation errors you will use with Yup.
 const validationErrors = {
@@ -11,6 +13,19 @@ const validationErrors = {
 
 
 
+
+
+const getInitialValues = () => ({
+  fullName: '',
+  size: '',
+  toppings: false,
+})
+
+const getInitialErrors = () => ({
+  fullName: '',
+  size: '',
+})
+
 // 👇 This array could help you construct your checkboxes using .map in the JSX.
 const toppings = [
   { topping_id: '1', text: 'Pepperoni' },
@@ -22,15 +37,12 @@ const toppings = [
 
 export default function Form() {
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    size: '',
-    pepperoni: false,
-    greenPeppers: false,
-    pineapple: false,
-    mushrooms: false,
-    ham: false
-  });
+  const [enabled, setEnabled] = useState(false);
+  const [values, setValues] = useState(getInitialValues());
+  const [errors, setErrors] = useState(getInitialErrors());
+  const [serverSuccess, setServerSucces] = useState();
+  const [serverFailure, setServerFailure] = useState();
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,29 +50,31 @@ export default function Form() {
   }
 
   const handleChange = (event) => {
-    const { name, type, value, checked } = event.target;
-
-    setFormData({
-      ...formData,
+    let { name, type, value, checked } = event.target;
+    value = type == 'checkbox' ? checked : value
+    setValues({
+      ...values,
       [name]: type == "checkbox" ? checked : value,
     });
 console.log(value)
   };
 
+
   return (
     <form onSubmit={handleSubmit}>
       <h2>Order Your Pizza</h2>
-      {true && <div className='success'>Thank you for your order!</div>}
-      {true && <div className='failure'>Something went wrong</div>}
+      {serverSuccess && <div className='success'>{serverSuccess}</div>}
+      {serverFailure && <div className='failure'>{serverFailure}</div>}
 
 
 {/* ////////////// USERNAME SECTION ////////////// */}
       <div className="input-group">
         <div>
           <label htmlFor="fullName">Full Name</label><br />
-          <input onChange={handleChange} placeholder="Type full name" id="fullName" type="text" />
+          <input name="fullName" onChange={handleChange} placeholder="Type full name" id="fullName" type="text" />
         </div>
-        {true && <div className='error'>Bad value</div>}
+        {true && <div className='error'>{validationErrors.fullNameTooShort}</div>}
+        {true && <div className='error'>{validationErrors.fullNameTooShort}</div>}
       </div>
 
 
@@ -71,7 +85,7 @@ console.log(value)
           <select 
             name="size" 
             onChange={handleChange} 
-            value={formData.size} 
+            // value={formData.size} 
             id="size"
             >
             <option value="">----Choose Size----</option>
@@ -80,7 +94,7 @@ console.log(value)
             <option value="L">Large</option>
           </select>
         </div>
-        {true && <div className='error'>Bad value</div>}
+      {true && <div className='error'>{validationErrors.sizeIncorrect}</div>}
       </div>
 
 {/* ////////////// CHECKED BOXES SELECTIONS ////////////// */}
@@ -89,6 +103,7 @@ console.log(value)
         {toppings.map((topping) => (
               <label key={topping.topping_id}>
                 <input
+                  checked={values.topping}
                   type="checkbox"
                   name="toppings"
                   value={topping.text}
@@ -101,7 +116,7 @@ console.log(value)
      
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
-      <input disabled={!false} type="submit" />
+      <input  type="submit" />
     </form>
   )
 }
