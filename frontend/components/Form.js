@@ -12,7 +12,7 @@ const formSchema = Yup.object().shape({
   fullName: Yup.string()
     .min(3, validationErrors.fullNameTooShort)
     .max(20, validationErrors.fullNameTooLong)
-    .required(), 
+    .required('full name must be at least 3 characters'),
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
     .required('size is required'),
@@ -22,7 +22,7 @@ const formSchema = Yup.object().shape({
 const getInitialValues = () => ({
   fullName: '',
   size: '',
-  toppings: [], 
+  toppings: [],
 });
 
 const getInitialErrors = () => ({
@@ -63,7 +63,7 @@ export default function Form() {
     const payload = {
       fullName: values.fullName,
       size: values.size,
-      toppings: values.toppings, 
+      toppings: values.toppings,
     };
 
     try {
@@ -73,47 +73,46 @@ export default function Form() {
       setServerSuccess(message);
       setServerFailure('');
       setValues(getInitialValues());
+      setErrors(getInitialErrors()); // Reset errors to initial state upon successful submission
     } catch (error) {
       if (error.inner) {
         const newErrors = error.inner.reduce((acc, err) => {
           acc[err.path] = err.message;
           return acc;
         }, {});
-        setErrors(newErrors); 
+        setErrors(newErrors);
       } else {
-        setServerFailure('');
+        setServerFailure('Failed to place order. Please try again.');
         setServerSuccess('');
       }
     }
   };
 
-  const handleChange = (evt) => {
+  const handleChange = async (evt) => {
     const { type, checked, name, value } = evt.target;
     const toppingId = toppings.find((topping) => topping.text === name)?.topping_id;
-  
+
     if (type === 'checkbox') {
       setValues((prevValues) => {
         const updatedToppings = checked
           ? [...prevValues.toppings, toppingId]
           : prevValues.toppings.filter((id) => id !== toppingId);
-  
+
         return { ...prevValues, toppings: updatedToppings };
       });
     } else {
-      const trimmedValue = value.trim(); 
+      const trimmedValue = value.trim(); // Trim the input value
       setValues((prevValues) => ({ ...prevValues, [name]: trimmedValue }));
-  
+
       try {
-    
-        Yup.reach(formSchema, name).validate(trimmedValue)
-          .then(() => setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }))) 
-          .catch((err) => setErrors((prevErrors) => ({ ...prevErrors, [name]: err.message }))); 
-      } catch (error) {
-        console.error(error);
+        // Validate individual form field value
+        await Yup.reach(formSchema, name).validate(trimmedValue);
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: '' })); // Clear error if valid
+      } catch (err) {
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: err.message })); // Set error if invalid
       }
     }
   };
-  
 
   return (
     <form onSubmit={handleSubmit}>
@@ -125,21 +124,21 @@ export default function Form() {
         <div>
           <label htmlFor="fullName">Full Name</label><br />
           <input
-            value={values.fullName} 
-            name="fullName" 
-            onChange={handleChange} 
+            value={values.fullName} // Value for fullName
+            name="fullName" // Name attribute for fullName
+            onChange={handleChange} // Change handler for fullName
             placeholder="Type full name"
             id="fullName"
             type="text"
           />
         </div>
-        {errors.fullName && <div className='error'>{errors.fullName}</div>} 
+        {errors.fullName && <div className='error'>{errors.fullName}</div>} {/* Display validation error for fullName */}
       </div>
 
       <div className="input-group">
         <div>
           <label htmlFor="size">Size</label><br />
-          <select 
+          <select
             name="size"
             onChange={handleChange}
             value={values.size}
