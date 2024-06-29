@@ -12,10 +12,10 @@ const formSchema = Yup.object().shape({
   fullName: Yup.string()
     .min(3, validationErrors.fullNameTooShort)
     .max(20, validationErrors.fullNameTooLong)
-    .required('full name must be at least 3 characters'),
+    .required(),
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
-    .required('size is required'),
+    .required(),
   toppings: Yup.array().of(Yup.number()).required(),
 });
 
@@ -74,7 +74,6 @@ export default function Form() {
       setServerSuccess(message);
       setServerFailure('');
       setValues(getInitialValues());
-  
     } catch (error) {
       if (error.inner) {
         const newErrors = error.inner.reduce((acc, err) => {
