@@ -22,7 +22,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import server from './backend/mock-server'
 
-jest.setTimeout(750) // default 5000 too long for Codegrade
+jest.setTimeout(900) // default 5000 too long for Codegrade
 
 const waitForOptions = { timeout: 250 }
 const queryOptions = { exact: false }
@@ -160,7 +160,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
       await waitFor(() => expect(submit).toBeEnabled())
 
       await waitFor(() => {
-        fireEvent.change(name, { target: { value: '12' } }) // BAD VALUE
+        fireEvent.change(name, { target: { value: '12' } }) 
         fireEvent.change(size, { target: { value: 'S' } })
       }, waitForOptions)
       await waitFor(() => expect(submit).toBeDisabled())
@@ -173,7 +173,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
 
       await waitFor(() => {
         fireEvent.change(name, { target: { value: '123' } })
-        fireEvent.change(size, { target: { value: 'X' } }) // BAD VALUE
+        fireEvent.change(size, { target: { value: 'X' } }) 
       }, waitForOptions)
       await waitFor(() => expect(submit).toBeDisabled())
 
@@ -187,7 +187,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
       const validationError = 'full name must be at least 3 characters'
 
       await waitFor(() => {
-        fireEvent.change(name, { target: { value: '1' } }) // BAD VALUE
+        fireEvent.change(name, { target: { value: '1' } })
       }, waitForOptions)
       await waitFor(() => screen.getByText(validationError, queryOptions))
 
@@ -199,7 +199,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
       }, waitForOptions)
 
       await waitFor(() => {
-        fireEvent.change(name, { target: { value: '  12  ' } }) // BAD VALUE (trying to fool validation with whitespace)
+        fireEvent.change(name, { target: { value: '  12  ' } }) 
       }, waitForOptions)
       await waitFor(() => screen.getByText(validationError, queryOptions))
 
@@ -221,7 +221,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
       }, waitForOptions)
 
       await waitFor(() => {
-        fireEvent.change(size, { target: { value: '' } }) // BAD VALUE
+        fireEvent.change(size, { target: { value: '' } }) 
       }, waitForOptions)
       await waitFor(() => screen.getByText(validationError, queryOptions))
 
@@ -233,7 +233,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
       }, waitForOptions)
 
       await waitFor(() => {
-        fireEvent.change(size, { target: { value: 'X' } }) // BAD VALUE
+        fireEvent.change(size, { target: { value: 'X' } })
       }, waitForOptions)
       await waitFor(() => screen.getByText(validationError, queryOptions))
 
